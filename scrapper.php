@@ -7,6 +7,8 @@ $jpg_path = "";
 class Descriptor
 {
     var $title;
+    var $image_w;
+    var $image_h;
     var $authors;
     var $desc;
     var $link;
@@ -91,6 +93,10 @@ function main()
             $old = "https://" . $old;
             $descriptor->authors = "[" . implode(",", $descriptor->authors) . "]";
             copy($old,  __DIR__ . "/" . $descriptor->link);
+            $dim = getimagesize($descriptor->link);
+            $descriptor->image_w = $dim[0];
+            $descriptor->image_h = $dim[1];
+
             fputcsv($fileh, (array)$descriptor, ",");
 
             sleep(1);
