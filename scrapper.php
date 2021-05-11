@@ -70,28 +70,32 @@ function combine_categories($categories)
 function main()
 {
     $categories = combine_categories($GLOBALS["categories"]);
-    $book_links = get_book_links($GLOBALS["html"] . $categories);
     // $descriptors = [];
     $fileh = fopen($GLOBALS["output_path"], "w");
     fwrite($fileh, "title,authors,desc, link,price\n");
 
-    //TODO  Page flow
-    //TODO  Start , end position
     $i = 0;
-    foreach ($book_links as $link) {
-        if ($i == 1000) {
-            break;
-        }
-        $descriptor = get_book_descriptor($link);
-        $old = $descriptor->link;
-        $descriptor->link = "media" . substr($old, strrpos($old, "/"));
-        $old = "https://" . $old;
-        $descriptor->authors = "[" . implode(",", $descriptor->authors) . "]";
-        copy($old,  __DIR__ . "/" . $descriptor->link);
-        fputcsv($fileh, (array)$descriptor, ",");
+    $PAGE_START = 0;
+    $PAGE_END = 4;
+    for ($page = $PAGE_START; $page < $PAGE_END; $page++) {
 
-        sleep(1);
-        $i++;
+        $book_links = get_book_links($GLOBALS["html"] . $categories . "?page=" . $page);
+
+        foreach ($book_links as $link) {
+            if ($i == 1000) {
+                break;
+            }
+            $descriptor = get_book_descriptor($link);
+            $old = $descriptor->link;
+            $descriptor->link = "media" . substr($old, strrpos($old, "/"));
+            $old = "https://" . $old;
+            $descriptor->authors = "[" . implode(",", $descriptor->authors) . "]";
+            copy($old,  __DIR__ . "/" . $descriptor->link);
+            fputcsv($fileh, (array)$descriptor, ",");
+
+            sleep(1);
+            $i++;
+        }
     }
 }
 main();
